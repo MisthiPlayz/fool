@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04-arm   # native ARM64 runner, free for public repos
+    runs-on: ubuntu-24.04-arm
 
     steps:
       - name: Clone upstream ytcui-dl
@@ -16,9 +16,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libssl-dev zlib1g-dev pkg-config
 
-      - name: Build
+      - name: Build (static)
         working-directory: ytcui-dl
-        run: make -j"$(nproc)" CFLAGS="-O3 -pipe -mcpu=neoverse-n1 -DNDEBUG"
+        run: make -j"$(nproc)" \
+               CFLAGS="-O3 -pipe -mcpu=neoverse-n1 -DNDEBUG" \
+               LDFLAGS="-static"
 
       - name: Verify
         working-directory: ytcui-dl
@@ -29,6 +31,6 @@ jobs:
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: ytcui-dl-linux-arm64
+          name: ytcui-dl-linux-arm64-static
           path: ytcui-dl/ytcui-dl
           if-no-files-found: error
